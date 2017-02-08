@@ -1,0 +1,33 @@
+.DS_Store
+.directory 
+*.py[cod]
+
+ 
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+*.so
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+
+.project
+.pydevproject
+.idea
+
+doc/
+media/
+*.sqlite3
