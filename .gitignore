@@ -31,3 +31,5 @@ nosetests.xml
 doc/
 media/
 *.sqlite3
+
+settings_local.py
