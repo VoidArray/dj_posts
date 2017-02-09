@@ -38,19 +38,19 @@ class PhotosListView(ListView):
             self.request.session['include'] = []
             self.request.session['exclude'] = []
 
-    def get_filter_tag_id(self):
-        includes_ids = set(self.request.session.get('include', []))
-        excludes_ids = set(self.request.session.get('exclude', []))
-        return includes_ids - excludes_ids
-
     def get_queryset(self):
         self.tags_session_update()
         self.order_session_update()
-        filter_ids = self.get_filter_tag_id()
-        if filter_ids:
-            queryset = Photo.objects.filter(id__in=filter_ids)
-        else:
-            queryset = Photo.objects.all()
+
+        queryset = super(PhotosListView, self).get_queryset()
+
+        includes_ids = self.request.session.get('include', [])
+        if includes_ids:
+            queryset = queryset.filter(tags__in=includes_ids)
+
+        excludes_ids = self.request.session.get('exclude', [])
+        if excludes_ids:
+            queryset = queryset.exclude(tags__in=excludes_ids)
 
         ordering = self.request.session.get('ordering', 'id')
         if ordering == 'like':
