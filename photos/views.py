@@ -10,16 +10,16 @@ class PhotosListView(ListView):
     context_object_name = 'all_photos'
     paginate_by = 20
 
-    def get_ordering(self):
+    def order_session_update(self):
         default_ordering = 'id'
-        ordering = self.request.GET.get('order_by', default_ordering)
+        ordering = self.request.GET.get('order_by')
         if ordering == 'date':
             ordering = 'creation_date'
         elif ordering == 'like':
             pass
         else:
             ordering = default_ordering
-        return ordering
+        self.request.session['ordering'] = ordering
 
     def tags_session_update(self):
         include_tag_id = self.request.GET.get('include')
@@ -45,19 +45,18 @@ class PhotosListView(ListView):
 
     def get_queryset(self):
         self.tags_session_update()
+        self.order_session_update()
         filter_ids = self.get_filter_tag_id()
         if filter_ids:
             queryset = Photo.objects.filter(id__in=filter_ids)
         else:
             queryset = Photo.objects.all()
 
-        ordering = self.get_ordering()
+        ordering = self.request.session.get('ordering', 'id')
         if ordering == 'like':
             queryset = sorted(queryset, key=lambda p: p.like_count, reverse=True)
         else:
             queryset = queryset.order_by(ordering).filter(is_hide=False)
-
-        self.request.session['last_sort'] = ordering
         return queryset
 
     def get_context_data(self, **kwargs):
