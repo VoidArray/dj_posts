@@ -1,4 +1,5 @@
 from django.views.generic import ListView
+from django.http import JsonResponse
 
 from .models import Photo, Tag
 
@@ -12,7 +13,13 @@ class PhotosListView(ListView):
     def get_ordering(self):
         default_ordering = 'id'
         ordering = self.request.GET.get('order_by', default_ordering)
-        return default_ordering
+        if ordering == 'date':
+            ordering = 'creation_date'
+        elif ordering == 'like':
+            pass
+        else:
+            ordering = default_ordering
+        return ordering
 
     def tags_session_update(self):
         include_tag_id = self.request.GET.get('include')
@@ -45,16 +52,26 @@ class PhotosListView(ListView):
             queryset = Photo.objects.all()
 
         ordering = self.get_ordering()
-        queryset = queryset.order_by(ordering).filter(is_hide=False)
+        if ordering == 'like':
+            queryset = sorted(queryset, key=lambda p: p.like_count, reverse=True)
+        else:
+            queryset = queryset.order_by(ordering).filter(is_hide=False)
+
+        self.request.session['last_sort'] = ordering
         return queryset
 
     def get_context_data(self, **kwargs):
-        # post_like_key = self.object.get_photo_key()
-        # if self.request.session.get(post_like_key, 'False') == 'False':
-        #     self.request.session[post_like_key] = 'True'
-        #     self.object.add_like()
-
         context = super(PhotosListView, self).get_context_data(**kwargs)
         tags = Tag.objects.filter(is_hide=False)
         context['tags'] = tags
         return context
+
+
+def like_add_view(request, photo_id):
+    scored_photo = Photo.objects.filter(id=photo_id).first()
+    if scored_photo:
+        post_like_key = scored_photo.get_photo_key()
+        if request.session.get(post_like_key, 'False') == 'False':
+            request.session[post_like_key] = 'True'
+            scored_photo.add_like()
+    return JsonResponse({})

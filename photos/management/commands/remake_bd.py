@@ -1,5 +1,8 @@
 import random
 import requests
+from datetime import datetime
+
+from multiprocessing import Pool
 
 from django.core.management.base import BaseCommand, CommandError
 from django.core.files import File
@@ -29,7 +32,11 @@ class Command(BaseCommand):
         with open('photos/management/commands/test-photo.csv', 'r') as fh:
             next(fh)
             for line in fh:
-                image_url = line.split(';')[1][1:-1]
+                image_url, dt = line.split(';')[1:3]
+                image_url = image_url[1:-1]
+                dt = dt.strip()[1:-1]
+                photo_dt = datetime.strptime(dt, '%Y-%m-%d %H:%M:%S')
+
                 r = requests.get(image_url, stream=True)
                 if r.status_code != requests.codes.ok:
                     continue
@@ -42,13 +49,14 @@ class Command(BaseCommand):
                 tags_count = random.randint(4, 7)
 
                 new_photo = Photo()
+                new_photo.creation_date = photo_dt
                 new_photo.image.save(file_name, File(img_temp), save=True)
                 new_photo.tags = Tag.objects.order_by('?')[:tags_count]
                 new_photo.save()
-
                 print('\t', file_name)
 
         print('photos loaded, count: ', Photo.objects.count())
+
 
     def handle(self, *args, **options):
         self._drop_base()

@@ -1,7 +1,21 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div><h2>Photos board</h2></div>
+
+    <script>
+        function sendLike(photo_id) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/like/' + photo_id, false);
+            xhr.send();
+
+            if (xhr.status == 200) {
+                var counter = document.getElementsByClassName('photo' + photo_id)[0];
+                counter.innerHTML = parseInt(counter.innerHTML) + 1;
+            }
+        }
+    </script>
+
+    <div><h2>Доска с фотографиями</h2></div>
     <div>
         <a href="?reset">Сросить выбор тегов</a>
     </div>
@@ -22,17 +36,28 @@
         <a href="?order_by=like">по лайкам</a>
         <a href="?order_by=date">по дате</a>
     </div>
+    <br/>
     <div class="photos">
         {% for ph in all_photos %}
-            <div class="row">
-                <a class="inline hundred"><h3>{{ ph.title }}</h3></a>
-                <img src="{{ph.image.url}}" alt="ph.title">
-                <p class="inline" >Like count: {{ph.like_count}}</p>
+            {% if not forloop.counter|divisibleby:"2" %}
+                <div class="row">
+            {% endif %}
+                <div class="inline photo">
+                    <img src="{{ph.image.url}}" alt="{{ ph.title }}">
+                    <div>
+                        <p class="inline">Like count:</p>
+                        <p class="inline photo{{ ph.id }}">{{ ph.like_count }}</p>
+                        <a href="javascript:void(0);" onclick="sendLike({{ ph.id }})">Like it +1</a>
+                    </div>
+                    <div>
+                        "{{ph.tags.all|join:'", "'}}"
+                    </div>
+                </div>
+            {% if forloop.counter|divisibleby:"2" %}
+                </div>
+                <hr>
+            {% endif %}
 
-                {% for t in ph.tags.all %}
-                    <p>{{ t.title }}</p>
-                {% endfor %}
-            </div>
         {% endfor %}
     </div>
 

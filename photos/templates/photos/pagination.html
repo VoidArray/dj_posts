@@ -14,14 +14,6 @@
             </div>
         {% endif %}
 
-        {% for page in paginator.page_range %}
-            {# if forloop.counter|divisibleby:100 #}
-                <div {% if page == page_obj.number %}class="active" {% endif %}>
-                    <a href="?page={{ page }}">{{ page }}</a>
-                </div>
-            {# endif #}
-        {% endfor %}
-
         {% if page_obj.has_next %}
             <div>
                 <a href="?page={{ page_obj.next_page_number }}">
@@ -35,5 +27,13 @@
                 </a>
             </div>
         {% endif %}
+
+        {% for page in paginator.page_range %}
+            {# if forloop.counter|divisibleby:100 #}
+                <div  class="inline {% if page == page_obj.number %} active{% endif %}">
+                    <a class="inline" href="?page={{ page }}">{{ page }}</a>
+                </div>
+            {# endif #}
+        {% endfor %}
     </nav>
 {% endif %}

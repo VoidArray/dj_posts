@@ -1,6 +1,7 @@
 from django.db import models
 
 from django.core.cache import cache
+from django.utils import timezone
 
 
 class Tag(models.Model):
@@ -16,6 +17,7 @@ class Photo(models.Model):
     is_hide = models.BooleanField(default=False)
     tags = models.ManyToManyField(Tag)
     image = models.ImageField(upload_to='photos/', max_length=1000)
+    creation_date = models.DateField(default=timezone.now)
 
     def __str__(self):
         return self.title
