@@ -2,6 +2,26 @@
 
 {% block content %}
     <div><h2>Photos board</h2></div>
+    <div>
+        <a href="?reset">Сросить выбор тегов</a>
+    </div>
+    <div class="tags">
+        <h3>Выбрать фото с тегом</h3>
+        {% for tag in tags %}
+            <a href="?include={{ tag.id }}">{{ tag.title }}</a>
+        {% endfor %}
+    </div>
+    <div class="tags">
+        <h3>Убрать фото с тегом</h3>
+        {% for tag in tags %}
+            <a href="?exclude={{ tag.id }}">{{ tag.title }}</a>
+        {% endfor %}
+    </div>
+    <div>
+        <h3>Упорядочить</h3>
+        <a href="?order_by=like">по лайкам</a>
+        <a href="?order_by=date">по дате</a>
+    </div>
     <div class="photos">
         {% for ph in all_photos %}
             <div class="row">
@@ -15,4 +35,6 @@
             </div>
         {% endfor %}
     </div>
+
+    {% include 'photos/pagination.html' %}
 {% endblock %}

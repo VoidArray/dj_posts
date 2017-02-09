@@ -50,7 +50,6 @@ class Command(BaseCommand):
 
         print('photos loaded, count: ', Photo.objects.count())
 
-
     def handle(self, *args, **options):
         self._drop_base()
         self._create_tags()
